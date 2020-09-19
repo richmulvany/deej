@@ -272,7 +272,7 @@ func (sio *SerialIO) handleLine(logger *zap.SugaredLogger, line string) {
 		dirtyFloat := float32(number) / 100 //mapping from 0-100 to 0-1 instead of 0-1023 to 0-1
 
 		// normalize it to an actual volume scalar between 0.0 and 1.0 with 2 points of precision
-		normalizedScalar := util.NormalizeScalar(dirtyFloat)
+		normalizedScalar := dirtyFloat //removed the "normalize" feature since it was causing issues when incrementing with steps of 1
 
 		// if sliders are inverted, take the complement of 1.0
 		if sio.deej.config.InvertSliders {
