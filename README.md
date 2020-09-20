@@ -11,3 +11,6 @@ This is an modified version of Deej [Original Deej](https://github.com/omriharel
 - (if needed) filter circuit for rotary encoder
   - 4 10kohm resistors
   - 2 10nF (=0.01µF) ceramic capacitors
+  
+# Schematic
+![Schematic](assets/Deej_Controller_Schematic.png)
