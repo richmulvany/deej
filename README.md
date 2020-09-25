@@ -18,6 +18,7 @@ This is an modified version of deej ([Original deej](https://github.com/omrihare
 ![Parts used](assets/deej_Controller_Parts.jpg)
 I used only 2 resistors since some where presoldered on the backside of the encoder board
 ![ExampleEEPROM](assets/EEPROM_Module.jpg)
+This is an example of an external EEPROM module.
 
 # Schematic
 ![Schematic](assets/deej_Controller_Schematic.png)
@@ -26,7 +27,7 @@ This is the schematic for the deej build without external EEPROM.
 This is the schematic for the deej build with external EEPROM. I used an IC in the schematic but using een module would also work fine (without the resistors).
 
 # Arduino code
-The arduino code is based on the stock code from deej but is quite modified. Currently I have 2 versions of it, there is a simple difference between them, the support of EEPROM. EEPROM is some sort of storage that doesn't lose it's data when the power drops down. The values of the sliders get stored into the EEPROM regularly. So when rebooting the deej volume controller, the values from last time will be used. It is important to know that the EEPROM has about 100 000 write cycle and from than it becomes unstable. So use the EEPROM at your own risk. If you want to use EEPROM on your build I suggest going for an external EEPROM module since you can change IC for cheap,
+The arduino code is based on the stock code from deej but is quite modified. Currently I have 2 versions of it, there is a simple difference between them, the support of EEPROM. EEPROM is some sort of storage that doesn't lose it's data when the power drops down. The values of the sliders get stored into the EEPROM regularly. So when rebooting the deej volume controller, the values from last time will be used. It is important to know that the EEPROM has about 100 000 write cycle and from than it becomes unstable. So use the EEPROM at your own risk. If you want to use EEPROM on your build I suggest going for an external EEPROM module since you can change IC for cheap.
 
 # 3D printing
 As you can see in the picture my enclosure is 3D printed, but the quality and the design is far from good, so currently I'm not putting my design on Thingiverse since I would like to improve to a good design with good print quality.
