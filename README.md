@@ -1,5 +1,5 @@
 # deej volume controller
-This is an modified version of deej ([Original deej](https://github.com/omriharel/deej)). I always wanted some simple way of changing volume of different programs instead of using the mixer of Windows so I came across the deej project and decided to give it a try.
+This is a modified version of deej ([Original deej](https://github.com/omriharel/deej)). I always wanted some simple way of changing volume of different programs instead of using the mixer of Windows so I came across the deej project and decided to give it a try.
 ![Build](assets/deej_Controller_Build.jpg)
 [Extra photos/video](https://imgur.com/a/3zxhjxF)
 
