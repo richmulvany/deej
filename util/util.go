@@ -100,7 +100,7 @@ func SignificantlyDifferent(old float32, new float32, noiseReductionLevel string
 		significantDifferenceThreshold = 0.035
 		break
 	case noiseReductionLow:
-		significantDifferenceThreshold = 0//default value would be 0.015 but changed it to 0 so the noiseReduction doesn't influence the slider value anymore
+		significantDifferenceThreshold = 0.001//default value would be 0.015 but changed it to 0.001 so the noiseReduction doesn't influence the slider value anymore
 		break
 	default:
 		significantDifferenceThreshold = 0.025
