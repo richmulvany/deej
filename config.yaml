@@ -19,9 +19,9 @@ slider_mapping:
 invert_sliders: false
 
 # settings for connecting to the arduino board
-com_port: COM4
+com_port: /dev/ttyACM0
 baud_rate: 9600
 
 # adjust the amount of signal noise reduction depending on your hardware quality
 # supported values are "low" (excellent hardware), "default" (regular hardware) or "high" (bad, noisy hardware)
-noise_reduction: low #do not change this since it puts the noise reduction (almost) off
+noise_reduction: off #do not change this since it puts the noise reduction (almost) off
