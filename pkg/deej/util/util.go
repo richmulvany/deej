@@ -75,12 +75,6 @@ func OpenExternal(logger *zap.SugaredLogger, cmd string, arg string) error {
 	return nil
 }
 
-// NormalizeScalar "trims" the given float32 to 2 points of precision (e.g. 0.15442 -> 0.15)
-// This is used both for windows core audio volume levels and for cleaning up slider level values from serial
-func NormalizeScalar(v float32) float32 {
-	return float32(math.Floor(float64(v)*100) / 100.0)
-}
-
 // a helper to make sure volume snaps correctly to 0 and 100, where appropriate
 func almostEquals(a float32, b float32) bool {
 	return math.Abs(float64(a-b)) < 0.000001
