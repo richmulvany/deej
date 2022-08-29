@@ -34,6 +34,8 @@ This is the schematic for the deej build with external EEPROM. I used an IC in t
 
 The arduino code is based on the stock code from deej but is quite modified. There are 2 version available, one with EEPROM and the other one without EEPROM. (read the README.txt in the Arduino folder for a more detailed explanation). EEPROM is some sort of storage that doesn't lose it's data when the power drops down. The values of the sliders get stored into the EEPROM regularly. So when rebooting the deej box, the values from last time will be used. It is important to know that the EEPROM has about 100 000 write cycle and from than it becomes unstable. So use the EEPROM at your own risk. If you want to use EEPROM on your build I suggest going for an external EEPROM module since you can change the IC for cheap.
 
+The libraries used are libraries either stock in arduino, or can be installed through the build-in library manager of arduino (Sketch > Include Library > Manage Libraries).
+
 # Rotary encoder
 
 I suggest using a rotarty encoder with a filter (resister and capacitor), but it is possible to use it without the filter, but then you need to connect the 2 outer pins directly to the microcontroller and change some code. The code that needs to be changed is simple: change
@@ -41,8 +43,9 @@ I suggest using a rotarty encoder with a filter (resister and capacitor), but it
 ```
 void setup()
 {
-  pinMode(CLK, INPUT);
-  pinMode(DT, INPUT);
+  pinMode(SW, INPUT_PULLUP);
+  pinMode(PIN_ENCODER_A, INPUT);
+  pinMode(PIN_ENCODER_B, INPUT);
   \\ rest of code comes here
 }
 ```
@@ -52,8 +55,9 @@ to
 ```
 void setup()
 {
-  pinMode(CLK, INPUT_PULLUP);
-  pinMode(DT, INPUT_PULLUP);
+  pinMode(SW, INPUT_PULLUP);
+  pinMode(PIN_ENCODER_A, INPUT_PULLUP);
+  pinMode(PIN_ENCODER_B, INPUT_PULLUP);
   \\ rest of code comes here
 }
 ```

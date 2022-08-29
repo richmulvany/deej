@@ -1,17 +1,20 @@
 #include <Wire.h>              //include the I²C library including it before the lcd library since it might happen that a normal lcd gets used (non I²C)
-#include <LiquidCrystal_I2C.h> //library for an i2C display, change this to an regular lcd library to use an normal lcd
-#include <EEPROM.h>            //library to use the eeprom
+#include <LiquidCrystal_I2C.h> //library for an i2C display, can be installed from the arduino library manager
+// #include <LiquidCrystal.h>//library for an display, can be installed from the arduino library manager
+#include <RotaryEncoder.h> //library for the rotarty encoder, can be installed from the arduino library manager
+#include <EEPROM.h>        //library to use the eeprom
 
-LiquidCrystal_I2C lcd(0x27, 16, 2); // don't forget to change this line when using an regular lcd
+LiquidCrystal_I2C lcd(0x27, 16, 2); // when using a I2C LCD
 // if the I2C lcd is not working, check you connection and the address above (0x27);
+// LiquidCrystal lcd(12, 10, 5, 4, 3, 2);  //when using a normal LCD
 
 // you can tweak following values for you needs
 
 // Please read the README
 const int useEEPROM = 0; // 0: use external eeprom
                          // 1: use internal eeprom
-const int CLK = 8;
-const int DT = 9;
+const int PIN_ENCODER_A = 8;
+const int PIN_ENCODER_B = 9;
 const int SW = 7;
 const int amountSliders = 9; // amount of sliders you want, also name them in the array below
 const String sliderNames[amountSliders] = {
@@ -30,14 +33,15 @@ const int I2CAddress = 0x50;                                                    
 int displayValue[amountSliders] = {100, 100, 100, 100, 100, 100, 100, 100, 100}; // start values for every slider
 
 // leave following values at their default
+RotaryEncoder encoder(PIN_ENCODER_A, PIN_ENCODER_B, RotaryEncoder::LatchMode::FOUR3);
+bool prev_a = false;
+bool prev_b = false;
 enum
 {
   extEEPROM = 0,
   intEEPROM = 1
 };
-int currentStateCLK;
 int previousValue[amountSliders] = {100, 100, 100, 100, 100, 100, 100, 100, 100}; // extra values to see if it changed compared to last cycle
-int lastStateCLK;
 int sliderNumber = 0; // variable which numbers all the sliders
 unsigned long lastButtonPress = 0;
 bool singleButtonPress = false;
@@ -120,9 +124,11 @@ byte indicator[amountIndicator][8] = {
 
 void setup()
 {
-  pinMode(CLK, INPUT);
-  pinMode(DT, INPUT);
   pinMode(SW, INPUT_PULLUP);
+  pinMode(PIN_ENCODER_A, INPUT);
+  pinMode(PIN_ENCODER_B, INPUT);
+  prev_a = digitalRead(PIN_ENCODER_A)
+  prev_b = digitalRead(PIN_ENCODER_B)
   lcd.init();
   lcd.backlight();
   lcd.createChar(0, arrow);
@@ -136,63 +142,66 @@ void setup()
   {
     // wait for Serial connection (or wait for deej to be runned in the background)
   }
-   if(useEEPROM==extEEPROM){
-     Wire.begin();//join the I²C bus as master
-     Wire.beginTransmission(I2CAddress);//start writing to module
-     Wire.write(0x00);//first byte of word
-     Wire.write(0x00);//second byte of word so we need byte 0x0000 of the EEPROM
-     Wire.endTransmission();
-     Wire.requestFrom(I2CAddress, amountSliders); //start reading bytes
-     for (int i = 0; i < amountSliders; i++) { //reading values out of the eeprom
-       while (!Wire.available()) {}
-       EEPROMvalue = Wire.read();
-       if ((EEPROMvalue != 0) && (EEPROMvalue <= 100)) {
-         displayValue[i] = EEPROMvalue;
-       }
-       previousValue[i] = displayValue[i];
-     }
-   }
-   else if(useEEPROM==intEEPROM){
-     for (int i = 0; i < amountSliders; i++) { //reading values out of the eeprom
-       EEPROMvalue = EEPROM.read(i);
-       if ((EEPROMvalue != 0) && (EEPROMvalue <= 100)) {
-         displayValue[i] = EEPROMvalue;
-       }
-       else {
-         EEPROM.write(i, 100); //if the values is not correct write 100 to it
-       }
-       previousValue[i] = displayValue[i];
-     }
-   }
+  if (useEEPROM == extEEPROM)
+  {
+    Wire.begin();                       // join the I²C bus as master
+    Wire.beginTransmission(I2CAddress); // start writing to module
+    Wire.write(0x00);                   // first byte of word
+    Wire.write(0x00);                   // second byte of word so we need byte 0x0000 of the EEPROM
+    Wire.endTransmission();
+    Wire.requestFrom(I2CAddress, amountSliders); // start reading bytes
+    for (int i = 0; i < amountSliders; i++)
+    { // reading values out of the eeprom
+      while (!Wire.available())
+      {
+      }
+      EEPROMvalue = Wire.read();
+      if ((EEPROMvalue != 0) && (EEPROMvalue <= 100))
+      {
+        displayValue[i] = EEPROMvalue;
+      }
+      previousValue[i] = displayValue[i];
+    }
+  }
+  else if (useEEPROM == intEEPROM)
+  {
+    for (int i = 0; i < amountSliders; i++)
+    { // reading values out of the eeprom
+      EEPROMvalue = EEPROM.read(i);
+      if ((EEPROMvalue != 0) && (EEPROMvalue <= 100))
+      {
+        displayValue[i] = EEPROMvalue;
+      }
+      else
+      {
+        EEPROM.write(i, 100); // if the values is not correct write 100 to it
+      }
+      previousValue[i] = displayValue[i];
+    }
+  }
 }
 
 void loop()
 {
-  // Read the current state of CLK
-  currentStateCLK = digitalRead(CLK);
-
-  // If last and current state of CLK are different, then pulse occurred
-  // React to only 1 state change to avoid double count
-  if (currentStateCLK != lastStateCLK && currentStateCLK == 1)
-  {
-
-    // If the DT state is different than the CLK state then
-    // the encoder is rotating CCW so decrement
-    if (digitalRead(DT) != currentStateCLK)
-    {
+  if (prev_a != digitalRead(PIN_ENCODER_A) || prev_b != digitalRead(PIN_ENCODER_B))
+  { // if an input of the encoder changed, tick the encoder to check for changes
+    encoder.tick();
+    // Serial.println("tick");
+  }
+  RotaryEncoder::Direction direction = encoder.getDirection(); // get direction from encoder
+  if (direction != RotaryEncoder::Direction::NOROTATION)
+  { // do something if there is a rotation
+    if (direction == RotaryEncoder::Direction::CLOCKWISE)
+    { // direction is CW
+      //  Serial.println("rotateRight");
       RotateRight();
-      // Serial.println("rotateRight");
     }
-    else
-    {
-      // Encoder is rotating CW so increment
+    if (direction == RotaryEncoder::Direction::COUNTERCLOCKWISE)
+    { // direction is CCW
+      //  Serial.println("rotateLeft");
       RotateLeft();
-      // Serial.println("rotateLeft");
     }
   }
-
-  // Remember last CLK state
-  lastStateCLK = currentStateCLK;
 
   // Read the button state
   int btnState = digitalRead(SW);
@@ -269,22 +278,27 @@ void UpdateSliders()
   }
 }
 
-void UpdateEEPROM(){
-  for (int i = 0; i < amountSliders; i++) { //only update when going back to main menu and the value needs to be changed
-    if (previousValue[i] != displayValue[i]) {
-      Wire.beginTransmission(I2CAddress);//start writing to module
-      Wire.write(0x00);//first byte of word
-      Wire.write(i);//second byte of word is the needed byte of the EEPROM
+void UpdateEEPROM()
+{
+  for (int i = 0; i < amountSliders; i++)
+  { // only update when going back to main menu and the value needs to be changed
+    if (previousValue[i] != displayValue[i])
+    {
+      Wire.beginTransmission(I2CAddress); // start writing to module
+      Wire.write(0x00);                   // first byte of word
+      Wire.write(i);                      // second byte of word is the needed byte of the EEPROM
       Wire.endTransmission();
-      Wire.requestFrom(I2CAddress, 1); //start reading bytes
-      while (!Wire.available()) {
+      Wire.requestFrom(I2CAddress, 1); // start reading bytes
+      while (!Wire.available())
+      {
         EEPROMvalue = Wire.read();
       }
-      if (displayValue[i] != EEPROMvalue) { //only update EEPROM value if the value has changed to save some write cycles
-        Wire.beginTransmission(I2CAddress);//start writing to module
-        Wire.write(0x00);//first byte of word
-        Wire.write(i);//second byte of word is the needed byte of the EEPROM
-        Wire.write(displayValue[i]);//writing to EEPROM
+      if (displayValue[i] != EEPROMvalue)
+      {                                     // only update EEPROM value if the value has changed to save some write cycles
+        Wire.beginTransmission(I2CAddress); // start writing to module
+        Wire.write(0x00);                   // first byte of word
+        Wire.write(i);                      // second byte of word is the needed byte of the EEPROM
+        Wire.write(displayValue[i]);        // writing to EEPROM
         Wire.endTransmission();
       }
     }
@@ -343,17 +357,21 @@ void ButtonPress()
   else if (state == valueScreen)
   {
     state = menuScreen;
-       if(useEEPROM==extEEPROM){
-         UpdateEEPROM();
-       }
-       else if(useEEPROM==intEEPROM){
-         for (int i = 0; i < amountSliders; i++) { //only update when going back to main menu and the value needs to be changed
-           if (previousValue[i] != displayValue[i]) {
-             EEPROM.update(i, displayValue[i]);//writing value to EEPROM
-           }
-           previousValue[i] = displayValue[i];
-         }
-       }
+    if (useEEPROM == extEEPROM)
+    {
+      UpdateEEPROM();
+    }
+    else if (useEEPROM == intEEPROM)
+    {
+      for (int i = 0; i < amountSliders; i++)
+      { // only update when going back to main menu and the value needs to be changed
+        if (previousValue[i] != displayValue[i])
+        {
+          EEPROM.update(i, displayValue[i]); // writing value to EEPROM
+        }
+        previousValue[i] = displayValue[i];
+      }
+    }
     sliderNumber = 0;
   }
   UpdateLCD();
