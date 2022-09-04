@@ -1,7 +1,7 @@
 # deej volume controller
 
 This is a modified version of deej ([Original deej](https://github.com/omriharel/deej)). I always wanted some simple way of changing volume of different programs instead of using the mixer of Windows so I came across the deej project and decided to give it a try.
-![Build](assets/deej_Controller_Build.jpg)
+![Build](assets/V2/IMG_20220904_200434.jpg)
 [Extra photos/video](https://imgur.com/a/3zxhjxF)
 
 # Build process
@@ -64,8 +64,8 @@ void setup()
 
 # 3D printing
 
-As you can see in the picture my enclosure is 3D printed, but the quality and the design is far from good, so currently I'm not putting my design on Thingiverse since I would like to improve to a good design with good print quality.
-Update: I'm in the last step of my V2 and I only have to redesign a new enclosure, so I hope I have a better enclosure in the near future.
+The case is a remixed version of daggr's design (which is a remix of nightfox939's design) and can be found on [Printables](https://www.printables.com/model/271221-deej-lcd-and-encoder-box) or in the stl folder. It doesn't have the nano mount, so the microcontroller must be glued in the case. It does have a usb-c opening for one of these [boards](https://www.amazon.de/-/en/gp/product/B09FPZDDD9). I printed it with 15% infill, 0.2 layer height and support at an 47° angle so there is only support at the usb socket.
+The knob is a model of Neolker and can be found [here](https://www.printables.com/model/242353-diamond-knob) or in the stl folder.
 
 # Building deej
 

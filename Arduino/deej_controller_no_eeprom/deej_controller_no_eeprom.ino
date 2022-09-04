@@ -11,26 +11,24 @@ LiquidCrystal_I2C lcd(0x27, 16, 2); // when using a I2C LCD
 const int PIN_ENCODER_A = 8;
 const int PIN_ENCODER_B = 9;
 const int SW = 7;
-const int amountSliders = 9; // amount of sliders you want, also name them in the array below
+const int amountSliders = 7; // amount of sliders you want, also name them in the array below
 const String sliderNames[amountSliders] = {
-    "Headset",
-    "Speakers",
-    "Games",
-    "Browser",
+    "Master",
     "Music",
+    "Browser",
     "Communication",
-    "Team",
+    "Teams",
     "System Sounds",
     "Mic",
 };
-const int increment[amountSliders] = {5, 5, 2, 1, 1, 5, 2, 5, 5};                // choose you're increment for each slider 1,2,4,5,10,20,25,50,100
-int displayValue[amountSliders] = {100, 100, 100, 100, 100, 100, 100, 100, 100}; // start values for every slider
+const int increment[amountSliders] = {5, 2, 2, 2, 2, 5, 5};                // choose you're increment for each slider 1,2,4,5,10,20,25,50,100
+int displayValue[amountSliders] = {100, 100, 100, 100, 100, 100, 100}; // start values for every slider
 
 // leave following values at their default
 RotaryEncoder encoder(PIN_ENCODER_A, PIN_ENCODER_B, RotaryEncoder::LatchMode::FOUR3);
 bool prev_a = false;
 bool prev_b = false;
-int previousValue[amountSliders] = {100, 100, 100, 100, 100, 100, 100, 100, 100}; // extra values to see if it changed compared to last cycle
+int previousValue[amountSliders] = {100, 100, 100, 100, 100, 100, 100}; // extra values to see if it changed compared to last cycle
 int sliderNumber = 0;                                                             // variable which numbers all the sliders
 unsigned long lastButtonPress = 0;
 bool singleButtonPress = false;
@@ -115,8 +113,8 @@ void setup()
   pinMode(SW, INPUT_PULLUP);
   pinMode(PIN_ENCODER_A, INPUT);
   pinMode(PIN_ENCODER_B, INPUT);
-  prev_a = digitalRead(PIN_ENCODER_A)
-  prev_b = digitalRead(PIN_ENCODER_B)
+  prev_a = digitalRead(PIN_ENCODER_A);
+  prev_b = digitalRead(PIN_ENCODER_B);
   lcd.init();
   lcd.backlight();
   lcd.createChar(0, arrow);
@@ -134,11 +132,14 @@ void setup()
 
 void loop()
 {
-  if (prev_a != digitalRead(PIN_ENCODER_A) || prev_b != digitalRead(PIN_ENCODER_B))
-  { // if an input of the encoder changed, tick the encoder to check for changes
+  bool cur_a = digitalRead(PIN_ENCODER_A);
+  bool cur_b = digitalRead(PIN_ENCODER_B);
+  if(prev_a!= cur_a || prev_b!=cur_b){
     encoder.tick();
-    // Serial.println("tick");
+//    Serial.println("tick");
   }
+  prev_a = cur_a;
+  prev_b = cur_b;
   RotaryEncoder::Direction direction = encoder.getDirection(); // get direction from encoder
   if (direction != RotaryEncoder::Direction::NOROTATION)
   { // do something if there is a rotation
