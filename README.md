@@ -31,8 +31,7 @@ You can use an I²C EEPROM Module to have a way of saving your mixer settings wh
 ### 3D Printing
 ![Printed Parts](https://i.imgur.com/pD0fAVj.jpg)
 
-I designed parts for printing using AutoDesk Fusion; the STL files are provided in this repo here:
-https://github.com/richmulvany/deej/tree/main/stl_files
+I designed parts for printing using AutoDesk Fusion; the STL files are provided in this repo [here.](https://github.com/richmulvany/deej/tree/master/stl)
 
 This was my first time printing something with a functional purpose, and I admittedly didn't approach the design with any intentions of usability by anyone else, so keep in mind they would be annoying to replicate. I also used a resin printer, where I would expect most people would be using a filament one. I did run into a problem using resin, where the case is slightly warped (I'm guessing this is due to my shed containing the printer decreasing in temperature over night during the print). 
 
@@ -40,9 +39,7 @@ I superglued my parts together, where most people have used screws for their mix
 
 ### Arduino Code
 
-I attempted to modify YaMoef's Arduino sketch, specifically the build excluding an EEPROM module, which did initially need only little change to accomodate the use of an OLED screen vs LCD. I discovered, however, that my encoder was only registering changes intermittently, or every time with the caveat of having to slightly push it in while turning. There seems to be a great deal of noise interfering with the readings, which is possibly caused by a poor connection with one of the contacts inside my encoder. I also wonder if the inclusion of capacitors in the filter circuit would have dealt with this issue, but since mine did not seem to include any, I opted to modify the code until the readings were more consistent. This has led to a much more modified version of the Arduino sketch than I had originally intented. 
-
-https://github.com/richmulvany/deej/tree/main/Arduino/Volume_Mixer_Sketch
+I attempted to modify YaMoef's Arduino sketch, specifically the build excluding an EEPROM module, which did initially need only little change to accomodate the use of an OLED screen vs LCD. I discovered, however, that my encoder was only registering changes intermittently, or every time with the caveat of having to slightly push it in while turning. There seems to be a great deal of noise interfering with the readings, which is possibly caused by a poor connection with one of the contacts inside my encoder. I also wonder if the inclusion of capacitors in the filter circuit would have dealt with this issue, but since mine did not seem to include any, I opted to modify the code until the readings were more consistent. This has led to a much more modified version of the Arduino [sketch](https://github.com/richmulvany/deej/tree/master/Arduino/mixer_sketch) than I had originally intented. 
 
 ### Schematic
 
