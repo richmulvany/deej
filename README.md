@@ -1,76 +1,53 @@
-# deej volume controller
+# deej volume mixer take using an OLED screen and rotary encoder
 
-This is a modified version of deej ([Original deej](https://github.com/omriharel/deej)). I always wanted some simple way of changing volume of different programs instead of using the mixer of Windows so I came across the deej project and decided to give it a try.
-![Build](assets/V2/IMG_20220904_200434.jpg)
-[Extra photos/video](https://imgur.com/a/3zxhjxF)
+<table>
+  <tr>
+    <td width=30%>This is my take on the deej volume mixer. I opted to produce a modified verison of YaMoef's mixer, where he used an LCD screen and rotary encoder rather than the original slider style. Mine is similar, with the main difference being the use of an OLED screen, which was an easy modification to make. </td>
+    <td width=35%><img src="https://i.imgur.com/rA4qBB2.jpg" width="300" height="400" alt="volume mixer"> </td>
+    <td width=35%><img src="https://i.imgur.com/h1SAT6z.jpg" width="300" height="400" alt="volume mixer 2"> </td>
+  </tr>
+</table>
 
-# Build process
+### Link to the main deej Github repo:
+https://github.com/omriharel/deej
 
-My first idea was to use a LCD (I2C), a rotary encoder and an Arduino pro micro to display the slider values on the screen in %. I wrote a simple Arduino code that maps the value from 0-100 to 0-1023, this code was working a bit but it wasn't accurate. When decreasing by 5% on the lcd, it decreased sometimes by 4 or 6 in Windows. With some help from other people in the deej Discord we tried to map correctly (the map function doesn't round the value). When achieving this the code still didn't work. So I moved on to modifying deej. After hours of trying to understand how deej works, I found some interessting lines in the serial.go and util.go files. I removed the noise reduction, changed the mapping to 0-100 and removed the "normalize" feature. After modifying the build I got my setup working.
+### Link to YaMoef's take on the deej:
+https://github.com/YaMoef/deej/tree/master
 
-# Parts needed
+### Components Required
+![Components](https://i.imgur.com/Il0kmBM.jpg)
 
-- 1 rotary encoder with pushbutton, preferably a module so you don't need a extra filter circuit
-- 1 Arduino pro micro (any other clone or Arduino board with an usb connection will do the job)
-- 1 LCD (I used an I²C 16*2. When using a normal screen you need to change the library in the arduino code. If you modify the Arduino code you could use a bigger LCD)
-- (if needed) filter circuit for rotary encoder
-  - 4 10kohm resistors
-  - 2 10nF (=0.01µF) ceramic capacitors
+I used the following components in this build:
+- Rotary encoder with push button
+- Arduino nano (mine was a 40p clone from AliExpress which worked fine)
+- Arduino compatible OLED screen (I used 0.91 inch)
+- Cabling
 - (Extra) I²C EEPROM Module
 
-![Parts used](assets/deej_Controller_Parts.jpg)
-I created a extra filterboard, but without it works just fine.
-![ExampleEEPROM](assets/EEPROM_Module.jpg)
-This is an example of an external EEPROM module.
+I used an encoder with its own pcb module to save from having to use a breadboard or create a pcb for my components, but if you wanted to take this approach, or lacked an encoder with a module, YaMoef's guide explains how to do this using resistors and capicitors. I actually ran into some trouble with signal noise when turning my encoder, which I think may have been alliviated with the inclusion of capacitors (my module appears to only include resistors). 
 
-# Schematic
+You can use an I²C EEPROM Module to have a way of saving your mixer settings when your device has been restarted. This can also be achieved through the internal ROM of the Arduino board, but due to memory limiations, you are likely to run into problems with the board relatively quickly. I haven't currently bothered including a module because I'm fine with not having saved settings for this project, but YaMoef's project details how to use one of these modules if you are interested. 
 
-![Schematic](assets/deej_Controller_Schematic.png)
-This is the schematic for the deej build without external EEPROM.
-![SchematicExternalEEPROM](assets/deej_Controller_External_EEPROM_Schematic.png)
-This is the schematic for the deej build with external EEPROM. I used an IC in the schematic but using a module would also work fine (without the resistors).
+### 3D Printing
+![Printed Parts](https://i.imgur.com/pD0fAVj.jpg)
 
-# Arduino code
+I designed parts for printing using AutoDesk Fusion; the STL files are provided in this repo here:
+https://github.com/richmulvany/deej/tree/main/stl_files
 
-The arduino code is based on the stock code from deej but is quite modified. There are 2 version available, one with EEPROM and the other one without EEPROM. (read the README.txt in the Arduino folder for a more detailed explanation). EEPROM is some sort of storage that doesn't lose it's data when the power drops down. The values of the sliders get stored into the EEPROM regularly. So when rebooting the deej box, the values from last time will be used. It is important to know that the EEPROM has about 100 000 write cycle and from than it becomes unstable. So use the EEPROM at your own risk. If you want to use EEPROM on your build I suggest going for an external EEPROM module since you can change the IC for cheap.
+This was my first time printing something with a functional purpose, and I admittedly didn't approach the design with any intentions of usability by anyone else, so keep in mind they would be annoying to replicate. I also used a resin printer, where I would expect most people would be using a filament one. I did run into a problem using resin, where the case is slightly warped (I'm guessing this is due to my shed containing the printer decreasing in temperature over night during the print). 
 
-The libraries used are libraries either stock in arduino, or can be installed through the build-in library manager of arduino (Sketch > Include Library > Manage Libraries).
+I superglued my parts together, where most people have used screws for their mixers. I just happened to have superglue rather than screws, and it seems like resin prints work well with superglue. This does mean I will have to destroy the case to retrieve the components or make modifications, however. 
 
-# Rotary encoder
+### Arduino Code
 
-I suggest using a rotarty encoder with a filter (resister and capacitor), but it is possible to use it without the filter, but then you need to connect the 2 outer pins directly to the microcontroller and change some code. The code that needs to be changed is simple: change
+I attempted to modify YaMoef's Arduino sketch, specifically the build excluding an EEPROM module, which did initially need only little change to accomodate the use of an OLED screen vs LCD. I discovered, however, that my encoder was only registering changes intermittently, or every time with the caveat of having to slightly push it in while turning. There seems to be a great deal of noise interfering with the readings, which is possibly caused by a poor connection with one of the contacts inside my encoder. I also wonder if the inclusion of capacitors in the filter circuit would have dealt with this issue, but since mine did not seem to include any, I opted to modify the code until the readings were more consistent. This has led to a much more modified version of the Arduino sketch than I had originally intented. 
 
-```
-void setup()
-{
-  pinMode(SW, INPUT_PULLUP);
-  pinMode(PIN_ENCODER_A, INPUT);
-  pinMode(PIN_ENCODER_B, INPUT);
-  \\ rest of code comes here
-}
-```
+https://github.com/richmulvany/deej/tree/main/Arduino/Volume_Mixer_Sketch
 
-to
+### Schematic
 
-```
-void setup()
-{
-  pinMode(SW, INPUT_PULLUP);
-  pinMode(PIN_ENCODER_A, INPUT_PULLUP);
-  pinMode(PIN_ENCODER_B, INPUT_PULLUP);
-  \\ rest of code comes here
-}
-```
+![Schematic](https://steemitimages.com/p/7ohP4GDMGPrUMp8dW6yuJTR9MKNu8P8DCXDU9qmmoBC9dmeUb3KxLK2bBfQ8UmDUP7465U1jz7wEtByULJYh6UMWPKijmRY22amS?format=match&mode=fit&width=1280)
 
-# 3D printing
+The above schematic from a full-sized Arduino project gives the gist of the assembly of my project. I used the equivalent pins on my nano board for the connections, although I used pins 6 and 8 for my A and B encoder pins, just due to preference. Here is what everything connected up looked like: 
 
-The case is a remixed version of daggr's design (which is a remix of nightfox939's design) and can be found on [Printables](https://www.printables.com/model/271221-deej-lcd-and-encoder-box) or in the stl folder. It doesn't have the nano mount, so the microcontroller must be glued in the case. It does have a usb-c opening for one of these [boards](https://www.amazon.de/-/en/gp/product/B09FPZDDD9). I printed it with 15% infill, 0.2 layer height and support at an 47° angle so there is only support at the usb socket.
-The knob is a model of Neolker and can be found [here](https://www.printables.com/model/242353-diamond-knob) or in the stl folder.
-
-# Building deej
-
-This is a custom version of the deej and needs to be builded, this can be done in the scripts folder.
-
-# Contact
-
-If you got any questions you can start a pull request, issue or contact me on the [deej Discord server](https://discord.gg/nf88NJu).
+![Connections](https://i.imgur.com/KBjFsCO.jpg)
